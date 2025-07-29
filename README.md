@@ -28,6 +28,14 @@ This is a RESTful Web API project built with ASP.NET Core 8.0 for managing libra
 
 ### Clone the repository
 
-```bash
 git clone https://github.com/washeem-007/Library_system_new.git
 cd Library_system_new
+
+### Run with Docker
+Build Docker image:
+
+docker build -t library-system-app .
+
+docker run -d -p 8080:80 --name library_system_container library-system-app
+
+The API will be accessible at http://localhost:8080
