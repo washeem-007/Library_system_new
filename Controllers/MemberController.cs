@@ -11,97 +11,144 @@ namespace LIBRARY_SYSTEM.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MemberController : ControllerBase
+    public class MembersController : ControllerBase
     {
-        private readonly LibraryContext _context;
+        private readonly IMemberService _MemberService;
+        private readonly ILogger<MembersController> _logger;
 
-        public MemberController(LibraryContext context)
+        public MembersController(IMemberService MemberService, ILogger<MembersController> logger)
         {
-            _context = context;
+            _MemberService = MemberService;
+            _logger = logger;
         }
 
-        // GET: api/Member
+        // GET: api/Members
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Member>>> GetMembers()
         {
-            return await _context.Members.ToListAsync();
+            try
+            {
+                _logger.LogInformation("Fetching all Members.");
+                var Members = await _MemberService.GetAllMembersAsync();
+                if (Members == null || !Members.Any())
+                {
+                    _logger.LogWarning("No Members found.");
+                    return NotFound("No Members found.");
+                }
+                return Ok(Members);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching Members.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
 
-        // GET: api/Member/5
+        // GET: api/Members/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Member>> GetMember(int id)
         {
-            var member = await _context.Members.FindAsync(id);
-
-            if (member == null)
-            {
-                return NotFound();
-            }
-
-            return member;
-        }
-
-        // PUT: api/Member/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutMember(int id, Member member)
-        {
-            if (id != member.MemberId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(member).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                _logger.LogInformation($"Fetching Member with ID {id}");
+                var Member = await _MemberService.GetMemberByIdAsync(id);
+
+                if (Member == null)
+                {
+                    _logger.LogWarning($"Member with ID {id} not found.");
+                    return NotFound($"Member with ID {id} not found.");
+                }
+
+                return Ok(Member);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching the Member.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
+        }
+
+        // PUT: api/Members/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutMember(int id, Member Member)
+        {
+            try
+            {
+                if (id != Member.MemberId)
+                {
+                    _logger.LogWarning("Member ID mismatch.");
+                    return BadRequest("Member ID mismatch.");
+                }
+
+                await _MemberService.UpdateMemberAsync(id, Member);
+                _logger.LogInformation($"Member with ID {id} updated.");
+                return NoContent();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!MemberExists(id))
+                if (await _MemberService.GetMemberByIdAsync(id) == null)
                 {
-                    return NotFound();
+                    _logger.LogWarning($"Member with ID {id} not found for update.");
+                    return NotFound($"Member with ID {id} not found.");
                 }
                 else
                 {
+                    _logger.LogError("Error updating Member.");
                     throw;
                 }
             }
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating the Member.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
 
-        // POST: api/Member
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // POST: api/Members
         [HttpPost]
-        public async Task<ActionResult<Member>> PostMember(Member member)
+        public async Task<ActionResult<Member>> PostMember(Member Member)
         {
-            _context.Members.Add(member);
-            await _context.SaveChangesAsync();
+            try
+            {
+                if (Member == null)
+                {
+                    _logger.LogWarning("Received empty Member object.");
+                    return BadRequest("Member data cannot be null.");
+                }
 
-            return CreatedAtAction("GetMember", new { id = member.MemberId }, member);
+                await _MemberService.AddMemberAsync(Member);
+                _logger.LogInformation($"Member with ID {Member.MemberId} created.");
+                return CreatedAtAction("GetMember", new { id = Member.MemberId }, Member);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating the Member.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
 
-        // DELETE: api/Member/5
+        // DELETE: api/Members/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMember(int id)
         {
-            var member = await _context.Members.FindAsync(id);
-            if (member == null)
+            try
             {
-                return NotFound();
+                var Member = await _MemberService.GetMemberByIdAsync(id);
+                if (Member == null)
+                {
+                    _logger.LogWarning($"Member with ID {id} not found.");
+                    return NotFound($"Member with ID {id} not found.");
+                }
+
+                await _MemberService.DeleteMemberAsync(id);
+                _logger.LogInformation($"Member with ID {id} deleted.");
+                return NoContent();
             }
-
-            _context.Members.Remove(member);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool MemberExists(int id)
-        {
-            return _context.Members.Any(e => e.MemberId == id);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while deleting the Member.");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+            }
         }
     }
 }

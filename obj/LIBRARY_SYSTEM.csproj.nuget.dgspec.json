@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "F:\\Semester 2\\Web Application Development\\LIBRARY_SYSTEM\\LIBRARY_SYSTEM.csproj": {}
+    "F:\\LIBRARY_SYSTEM\\LIBRARY_SYSTEM.csproj": {}
   },
   "projects": {
-    "F:\\Semester 2\\Web Application Development\\LIBRARY_SYSTEM\\LIBRARY_SYSTEM.csproj": {
+    "F:\\LIBRARY_SYSTEM\\LIBRARY_SYSTEM.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\Semester 2\\Web Application Development\\LIBRARY_SYSTEM\\LIBRARY_SYSTEM.csproj",
+        "projectUniqueName": "F:\\LIBRARY_SYSTEM\\LIBRARY_SYSTEM.csproj",
         "projectName": "LIBRARY_SYSTEM",
-        "projectPath": "F:\\Semester 2\\Web Application Development\\LIBRARY_SYSTEM\\LIBRARY_SYSTEM.csproj",
+        "projectPath": "F:\\LIBRARY_SYSTEM\\LIBRARY_SYSTEM.csproj",
         "packagesPath": "C:\\Users\\Mohamed Washeem\\.nuget\\packages\\",
-        "outputPath": "F:\\Semester 2\\Web Application Development\\LIBRARY_SYSTEM\\obj\\",
+        "outputPath": "F:\\LIBRARY_SYSTEM\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Mohamed Washeem\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -43,6 +43,18 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "MailKit": {
+              "target": "Package",
+              "version": "[4.13.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.18, )"
